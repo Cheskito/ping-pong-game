@@ -59,6 +59,9 @@ class EscenaMenu extends Phaser.Scene {
 class EscenaJuego extends Phaser.Scene {
   constructor() {
     super('EscenaJuego');
+    this.nivel = 1;
+    this.velocidadNivel1 = 300;
+    this.velocidadNivel2 = 500;
   }
 
   preload() {
@@ -116,7 +119,8 @@ class EscenaJuego extends Phaser.Scene {
       this.hitSound.play();
     });
 
-    const velocidad = 500;
+    const velocidad = this.nivel === 1 ? this.velocidadNivel1 : this.velocidadNivel2;
+    
     let anguloInicial = Math.random() * Math.PI / 2 + Math.PI / 4;
     const derechaOIzq = Math.floor(Math.random() * 2);
     if (derechaOIzq === 1) anguloInicial += Math.PI;
@@ -165,6 +169,11 @@ class EscenaJuego extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 4
     }).setOrigin(0.5, 0.5);
+    this.nivelTexto = this.add.text(480, 75, 'Nivel ' + this.nivel, {
+      fontFamily: 'font1',
+      fontSize: 40,
+      color: '#ffffff',
+    }).setOrigin(0.5, 1.5);
   }
 
   update() {
@@ -174,12 +183,36 @@ class EscenaJuego extends Phaser.Scene {
       this.scoreSound.play();
       this.alguienGano = true;
       this.marcadorMano2.text = parseInt(this.marcadorMano2.text) + 1;
-      this.colocarPelota();
+      
+      if (parseInt(this.marcadorMano2.text) >= 3) {
+        if (this.nivel === 1) {
+          this.nivel = 2;
+          this.reiniciarNivel();
+        } else if (this.nivel === 2) {
+          alert('Felicidades, Francesco Riva Reyes');
+          this.nivel = 1;
+          this.scene.start('EscenaMenu');
+        }
+      } else {
+        this.colocarPelota();
+      }
     } else if (this.bola.x > 960 && this.alguienGano === false) {
       this.scoreSound.play();
       this.alguienGano = true;
       this.marcadorMano1.text = parseInt(this.marcadorMano1.text) + 1;
-      this.colocarPelota();
+      
+      if (parseInt(this.marcadorMano1.text) >= 3) {
+        if (this.nivel === 1) {
+          this.nivel = 2;
+          this.reiniciarNivel();
+        } else if (this.nivel === 2) {
+          alert('Felicidades, Francesco Riva Reyes');
+          this.nivel = 1;
+          this.scene.start('EscenaMenu');
+        }
+      } else {
+        this.colocarPelota();
+      }
     }
 
     if (this.wasd.up.isDown || this.mano1.getData('direccionVertical') === 1) {
@@ -196,22 +229,31 @@ class EscenaJuego extends Phaser.Scene {
   }
 
   pintarMarcador() {
-    this.marcadorMano1 = this.add.text(440, 75, '0', {
+    this.marcadorMano1 = this.add.text(440, 150, '0', {
       fontFamily: 'font1',
       fontSize: 80,
       color: '#ffffff',
       align: 'right'
-    }).setOrigin(1, 0);
+    }).setOrigin(1, 0.5);
 
-    this.marcadorMano2 = this.add.text(520, 75, '0', {
+    this.marcadorMano2 = this.add.text(520, 150, '0', {
       fontFamily: 'font1',
       fontSize: 80,
       color: '#ffffff',
-    });
+    }).setOrigin(0, 0.5);
+  }
+
+  reiniciarNivel() {
+    this.marcadorMano1.text = '0';
+    this.marcadorMano2.text = '0';
+    
+    this.nivelTexto.setText('Nivel ' + this.nivel);
+    
+    this.colocarPelota();
   }
 
   colocarPelota() {
-    const velocidad = 500;
+    const velocidad = this.nivel === 1 ? this.velocidadNivel1 : this.velocidadNivel2;
 
     let anguloInicial = Math.random() * Math.PI / 2 + Math.PI / 4;
     const derechaOIzq = Math.floor(Math.random() * 2);
