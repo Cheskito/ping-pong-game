@@ -1,13 +1,74 @@
-class Escena extends Phaser.Scene {
+class EscenaMenu extends Phaser.Scene {
+  constructor() {
+    super('EscenaMenu');
+  }
 
   preload() {
-    this.load.image('fondo', 'img/fondo.jpg');
+    this.load.image('fondo', 'img/table.jpg');
+    this.load.audio('themeMusic', 'audio/theme.wav');
+  }
+
+  create() {
+    this.add.image(480, 320, 'fondo');
+    this.themeMusic = this.sound.add('themeMusic', {
+      loop: true,
+      volume: 0.5
+    });
+    this.themeMusic.play();
+
+    const titulo = this.add.text(480, 200, 'PING PONG', {
+      fontFamily: 'font1',
+      fontSize: 64,
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 8
+    }).setOrigin(0.5);
+
+    const botonComenzar = this.add.text(480, 320, 'COMENZAR', {
+      fontFamily: 'font1',
+      fontSize: 32,
+      color: '#ffff00',
+      backgroundColor: '#000000',
+      padding: { x: 20, y: 10 }
+    }).setOrigin(0.5);
+
+    botonComenzar.setInteractive();
+
+    botonComenzar.on('pointerover', () => {
+      botonComenzar.setStyle({ color: '#ff0000' });
+    });
+
+    botonComenzar.on('pointerout', () => {
+      botonComenzar.setStyle({ color: '#ffff00' });
+    });
+
+    botonComenzar.on('pointerdown', () => {
+      this.scene.start('EscenaJuego');
+    });
+
+    this.add.text(480, 550, 'Francesco Riva Reyes', {
+      fontFamily: 'font1',
+      fontSize: 24,
+      color: '#ffff00',
+      stroke: '#000000',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+  }
+}
+
+class EscenaJuego extends Phaser.Scene {
+  constructor() {
+    super('EscenaJuego');
+  }
+
+  preload() {
+    this.load.image('fondo', 'img/table.jpg');
     this.load.spritesheet('bola', 'img/bola.png', {
       frameWidth: 100,
       frameHeight: 100
     });
-    this.load.image('mano1', 'img/mano1.png');
-    this.load.image('mano2', 'img/mano2.png');
+    this.load.image('mano1', 'img/pallet1.png');
+    this.load.image('mano2', 'img/pallet2.png');
     this.load.image('leftBtn', 'img/flecha.png');
     this.load.audio('hitSound', 'audio/hitSound.wav');
     this.load.audio('scoreSound', 'audio/scoreSound.wav');
@@ -39,6 +100,7 @@ class Escena extends Phaser.Scene {
     this.mano1.body.immovable = true;
     this.mano1.setSize(60, 250);
     this.mano1.setCollideWorldBounds(true);
+    this.mano1.setScale(0.1);
     this.bola.setBounce(10);
     this.physics.add.collider(this.bola, this.mano1, () => {
       this.hitSound.play();
@@ -48,6 +110,7 @@ class Escena extends Phaser.Scene {
     this.mano2.body.immovable = true;
     this.mano2.setSize(60, 250);
     this.mano2.setCollideWorldBounds(true);
+    this.mano2.setScale(0.1);
     this.mano2.setBounce(10);
     this.physics.add.collider(this.bola, this.mano2, () => {
       this.hitSound.play();
@@ -94,7 +157,7 @@ class Escena extends Phaser.Scene {
       left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
     };
-    
+
     this.add.text(480, 620, 'Francesco Riva Reyes', {
       fontFamily: 'font1',
       fontSize: 24,
@@ -139,7 +202,7 @@ class Escena extends Phaser.Scene {
       color: '#ffffff',
       align: 'right'
     }).setOrigin(1, 0);
-    
+
     this.marcadorMano2 = this.add.text(520, 75, '0', {
       fontFamily: 'font1',
       fontSize: 80,
@@ -208,7 +271,7 @@ const config = {
   type: Phaser.AUTO,
   width: 960,
   height: 640,
-  scene: Escena,
+  scene: [EscenaMenu, EscenaJuego],
   physics: {
     default: 'arcade',
   }
